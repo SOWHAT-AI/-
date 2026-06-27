@@ -1,0 +1,761 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>고등학생 생태시민성 자가진단 - 생태교란종 편</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js CDN for interactive visualization -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- FontAwesome for Beautiful Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts Inter & Pretendard-like fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <!-- Kakao SDK -->
+    <script src="https://developers.kakao.com/sdk/js/kakao.min.js"></script>
+    
+    <style>
+        body {
+            font-family: 'Noto Sans KR', 'Inter', sans-serif;
+            background-color: #f2f4f2; /* 자연주의적인 연한 저채도 스톤 그린 */
+        }
+        .custom-shadow {
+            box-shadow: 0 15px 35px -10px rgba(110, 125, 110, 0.15);
+        }
+        .fade-in {
+            animation: fadeIn 0.4s ease-out forwards;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(12px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .score-btn {
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .score-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+        /* Radial progress custom style */
+        .progress-bar-fill {
+            transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center justify-between py-6 px-4">
+
+    <!-- Main Wrapper Card -->
+    <main class="w-full max-w-2xl bg-white rounded-3xl border border-stone-200/90 custom-shadow p-6 md:p-8 my-auto fade-in relative">
+        
+        <!-- Kakao Settings Button for Teachers -->
+        <button onclick="toggleKakaoSettings()" class="absolute top-6 right-6 text-stone-400 hover:text-stone-600 transition" title="카카오 공유 설정">
+            <i class="fa-solid fa-gear text-lg"></i>
+        </button>
+
+        <!-- HEADER SECTION -->
+        <header class="text-center mb-6">
+            <div class="inline-flex items-center gap-2 bg-stone-100 text-stone-700 text-xs font-semibold px-3 py-1.5 rounded-full mb-3">
+                <i class="fa-solid fa-leaf text-lime-600"></i> 고등학생 환경 수업 셀프 테스트
+            </div>
+            <h1 class="text-2xl md:text-3xl font-bold text-stone-800 tracking-tight leading-tight">
+                생태시민성 진단 테스트
+            </h1>
+            <p class="text-sm text-stone-500 font-semibold mt-1">🌿 생태교란종 편</p>
+        </header>
+
+        <!-- Kakao Key Configuration Dropdown (Hidden by default) -->
+        <div id="kakao-settings" class="hidden mb-6 p-4 bg-stone-50 rounded-2xl border border-stone-200 text-xs text-stone-600 space-y-2">
+            <div class="flex justify-between items-center">
+                <span class="font-bold text-stone-700"><i class="fa-solid fa-key mr-1 text-yellow-600"></i> 카카오톡 공유 API 키 설정</span>
+                <button onclick="toggleKakaoSettings()" class="text-stone-400 hover:text-stone-600 font-bold">닫기</button>
+            </div>
+            <p class="leading-relaxed text-stone-500">
+                카카오 개발자 사이트에서 발급받은 <strong>JavaScript 키</strong>를 입력하시면, 카카오톡 메시지 카드 형태로 연동됩니다. 입력하지 않을 경우 <u>[클립보드 복사 후 카카오톡 열기]</u>로 편리하게 대체 작동합니다.
+            </p>
+            <div class="flex gap-2">
+                <input id="kakao-app-key" type="text" placeholder="JavaScript 키 입력" class="flex-1 p-2 border border-stone-300 rounded-lg text-xs focus:ring-1 focus:ring-lime-500 outline-none">
+                <button onclick="saveKakaoKey()" class="px-3 py-2 bg-stone-700 text-white font-bold rounded-lg hover:bg-stone-800">저장</button>
+            </div>
+        </div>
+
+        <!-- Dynamic Content Area -->
+        <div id="app-content">
+            
+            <!-- 1. START SCREEN -->
+            <section id="start-screen" class="space-y-6">
+                <div class="bg-gradient-to-br from-stone-50 to-stone-100/60 p-6 rounded-2xl border border-stone-200/50">
+                    <h3 class="text-xl font-extrabold text-lime-700 mb-2">
+                        나는 어떤 생태시민일까요?
+                    </h3>
+                    <p class="text-sm text-stone-600 leading-relaxed mb-4">
+                        우리 주변 생태계의 균형을 뒤흔드는 '생태교란종'에 대해 배우고 실천해 본 내용을 바탕으로 스스로를 평가해 보세요. 
+                        <strong>지식, 책임, 정의, 지속가능성, 참여</strong> 5가지 영역의 자질을 간단히 진단합니다!
+                    </p>
+                    <div class="grid grid-cols-5 gap-2 text-center text-[11px] font-semibold text-stone-600">
+                        <div class="bg-white/80 p-2 rounded-xl border border-stone-200/40"><i class="fa-solid fa-brain block text-lime-650 text-lg mb-1"></i>지식</div>
+                        <div class="bg-white/80 p-2 rounded-xl border border-stone-200/40"><i class="fa-solid fa-handshake block text-emerald-650 text-lg mb-1"></i>책임</div>
+                        <div class="bg-white/80 p-2 rounded-xl border border-stone-200/40"><i class="fa-solid fa-scale-balanced block text-stone-500 text-lg mb-1"></i>정의</div>
+                        <div class="bg-white/80 p-2 rounded-xl border border-stone-200/40"><i class="fa-solid fa-arrows-spin block text-teal-650 text-lg mb-1"></i>지속성</div>
+                        <div class="bg-white/80 p-2 rounded-xl border border-stone-200/40"><i class="fa-solid fa-users block text-sky-650 text-lg mb-1"></i>참여</div>
+                    </div>
+                </div>
+
+                <div class="space-y-3">
+                    <div class="flex items-center gap-3 bg-gray-50 p-4 rounded-xl border border-gray-100">
+                        <div class="bg-stone-100 text-stone-700 rounded-lg p-2.5 flex items-center justify-center">
+                            <i class="fa-solid fa-clipboard-question text-lg"></i>
+                        </div>
+                        <div>
+                            <p class="text-sm font-bold text-gray-800">총 5문항 자가 진단</p>
+                            <p class="text-xs text-gray-500">1점(전혀 아니다)부터 5점(매우 그렇다)까지 직관적인 스케일 응답</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-3 bg-gray-50 p-4 rounded-xl border border-gray-100">
+                        <div class="bg-stone-100 text-stone-700 rounded-lg p-2.5 flex items-center justify-center">
+                            <i class="fa-solid fa-chart-pie text-lg"></i>
+                        </div>
+                        <div>
+                            <p class="text-sm font-bold text-gray-800">정밀 5각 방사형 결과 분석</p>
+                            <p class="text-xs text-gray-500">나의 생태 유형 분석 및 영역별 실천 가이드 제공</p>
+                        </div>
+                    </div>
+                </div>
+
+                <button onclick="startTest()" class="w-full py-4 bg-stone-700 hover:bg-stone-800 text-white font-bold text-lg rounded-2xl shadow-lg shadow-stone-700/10 active:scale-[0.98] transition-all duration-100 flex items-center justify-center gap-2">
+                    자가진단 시작하기 <i class="fa-solid fa-circle-arrow-right"></i>
+                </button>
+            </section>
+
+            <!-- 2. QUIZ SCREEN -->
+            <section id="quiz-screen" class="hidden space-y-6">
+                <!-- Progress Indicator -->
+                <div class="space-y-2">
+                    <div class="flex justify-between items-center text-sm">
+                        <!-- Dynamic colored Badge -->
+                        <span class="font-bold text-xs px-3 py-1 rounded-full border transition-all duration-300" id="quiz-badge">지식과 이해</span>
+                        <span class="text-gray-400 font-medium" id="quiz-progress-text">1 / 5 문항</span>
+                    </div>
+                    <div class="w-full bg-gray-100 rounded-full h-3 overflow-hidden">
+                        <!-- Dynamic Theme Colored Progress Bar -->
+                        <div id="quiz-progress-bar" class="h-full progress-bar-fill bg-gradient-to-r transition-all duration-500" style="width: 20%;"></div>
+                    </div>
+                </div>
+
+                <!-- Question Card with dynamic themed styling -->
+                <div id="question-card" class="rounded-2xl p-6 border min-h-[140px] flex flex-col justify-center transition-all duration-300">
+                    <p class="text-xs font-bold tracking-wider mb-2 transition-all duration-300" id="question-category">1. [지식과 이해]</p>
+                    <p class="text-lg font-bold text-gray-800 leading-relaxed" id="question-text">
+                        질문 내용 로딩 중...
+                    </p>
+                </div>
+
+                <!-- Answer Scale Options -->
+                <div class="space-y-4">
+                    <p class="text-center text-xs font-bold text-gray-400 tracking-wider">나에게 가장 잘 들어맞는 점수를 골라주세요</p>
+                    <div class="grid grid-cols-5 gap-1.5 md:gap-3 text-center">
+                        <!-- 1점: 전혀 아니다 (연한 장미빛 레드) -->
+                        <button onclick="selectScore(1)" id="score-btn-1" class="score-btn flex flex-col items-center justify-center py-4 bg-white border border-rose-200 text-rose-700 hover:bg-rose-50/50 rounded-2xl group">
+                            <span class="text-2xl font-black text-rose-300 group-hover:text-rose-600">1</span>
+                            <span class="text-[10px] font-bold mt-1">전혀 아니다</span>
+                        </button>
+                        <!-- 2점: 아니다 (연한 오렌지피치) -->
+                        <button onclick="selectScore(2)" id="score-btn-2" class="score-btn flex flex-col items-center justify-center py-4 bg-white border border-orange-200 text-orange-700 hover:bg-orange-50/50 rounded-2xl group">
+                            <span class="text-2xl font-black text-orange-300 group-hover:text-orange-600">2</span>
+                            <span class="text-[10px] font-bold mt-1">아니다</span>
+                        </button>
+                        <!-- 3점: 보통이다 (차분한 샌드옐로우) -->
+                        <button onclick="selectScore(3)" id="score-btn-3" class="score-btn flex flex-col items-center justify-center py-4 bg-white border border-amber-200 text-amber-700 hover:bg-amber-50/50 rounded-2xl group">
+                            <span class="text-2xl font-black text-amber-300 group-hover:text-amber-600">3</span>
+                            <span class="text-[10px] font-bold mt-1">보통이다</span>
+                        </button>
+                        <!-- 4점: 그렇다 (편안한 옥빛 초록) -->
+                        <button onclick="selectScore(4)" id="score-btn-4" class="score-btn flex flex-col items-center justify-center py-4 bg-white border border-emerald-200 text-emerald-700 hover:bg-emerald-50/50 rounded-2xl group">
+                            <span class="text-2xl font-black text-emerald-300 group-hover:text-emerald-650">4</span>
+                            <span class="text-[10px] font-bold mt-1">그렇다</span>
+                        </button>
+                        <!-- 5점: 매우 그렇다 (활기차고 맑은 연두색) -->
+                        <button onclick="selectScore(5)" id="score-btn-5" class="score-btn flex flex-col items-center justify-center py-4 bg-white border border-lime-300 text-lime-800 hover:bg-lime-50 rounded-2xl group">
+                            <span class="text-2xl font-black text-lime-300 group-hover:text-lime-650">5</span>
+                            <span class="text-[10px] font-bold mt-1">매우 그렇다</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Navigation -->
+                <div class="flex justify-between items-center pt-2">
+                    <button id="prev-btn" onclick="prevQuestion()" class="flex items-center gap-1.5 px-4 py-2 text-sm text-gray-500 font-bold hover:text-stone-700 disabled:opacity-30 disabled:pointer-events-none">
+                        <i class="fa-solid fa-arrow-left"></i> 이전 질문
+                    </button>
+                    <span class="text-xs font-semibold text-gray-400">생태교란종 실천 자가 진단</span>
+                </div>
+            </section>
+
+            <!-- 3. RESULT SCREEN -->
+            <section id="result-screen" class="hidden space-y-6">
+                <!-- Overview Card -->
+                <div class="bg-gradient-to-r from-stone-600 to-stone-700 text-white rounded-3xl p-6 text-center shadow-lg relative overflow-hidden">
+                    <div class="absolute -right-6 -bottom-6 text-white/10 text-9xl font-bold">
+                        <i class="fa-solid fa-tree"></i>
+                    </div>
+                    <span class="inline-block bg-white/20 backdrop-blur-sm text-xs font-semibold px-3 py-1 rounded-full mb-2">종합 결과</span>
+                    <h2 class="text-xl md:text-2xl font-bold mb-1" id="result-title">지구를 지키는 생태 리더</h2>
+                    <p class="text-xs text-stone-100 opacity-90 mb-4" id="result-range">결과 설명 로딩 중...</p>
+                    
+                    <div class="bg-white/10 backdrop-blur-md rounded-2xl p-4 inline-block mx-auto">
+                        <p class="text-xs text-stone-200">나의 생태시민지수 (Eco-Score)</p>
+                        <p class="text-4xl font-black mt-1"><span id="total-score">0</span><span class="text-sm font-normal text-stone-300"> / 25점</span></p>
+                    </div>
+                </div>
+
+                <!-- Analysis Chart Container -->
+                <div class="bg-white border border-gray-100 rounded-2xl p-4 shadow-sm">
+                    <h3 class="text-sm font-bold text-gray-800 mb-3 text-center">
+                        <i class="fa-solid fa-chart-line text-stone-600 mr-1"></i> 5대 생태시민 자질 다이어그램
+                    </h3>
+                    <div class="w-full max-h-[250px] flex items-center justify-center">
+                        <canvas id="ecoChart" class="w-full h-full max-w-[240px] max-h-[240px]"></canvas>
+                    </div>
+                    <p class="text-[10px] text-gray-400 mt-2 text-center leading-normal">
+                        * `image_7e847c.png` 고등학생이 가져야 할 5가지 자질(지식, 책임, 정의, 지속가능성, 참여) 기준 분석
+                    </p>
+                </div>
+
+                <!-- Detailed Breakdown Bars -->
+                <div class="space-y-3">
+                    <h3 class="text-sm font-bold text-gray-800"><i class="fa-solid fa-clipboard-list text-stone-600 mr-1"></i> 영역별 나의 성취도</h3>
+                    <div class="space-y-2.5" id="breakdown-list">
+                        <!-- Javascript will render these list items dynamically -->
+                    </div>
+                </div>
+
+                <!-- Action & Resources Accordion -->
+                <div class="bg-stone-50 rounded-2xl p-4 border border-stone-100 space-y-2">
+                    <h4 class="text-xs font-bold text-stone-700 uppercase tracking-wider mb-1"><i class="fa-solid fa-circle-info mr-1"></i> 생태 시민 행동 알아두기</h4>
+                    <p class="text-xs text-stone-600 leading-relaxed" id="info-description">
+                        생태교란종 관리는 단순히 해로운 동물을 없애는 목적이 아닙니다. 이 땅의 자연이 본래 지녔던 생물학적 고유 주권을 회복하고, 인간이 저지른 환경 교란 현상에 대한 책임을 반성하며 함께 어울려 살기 위한 정의로운 실천 과정입니다.
+                    </p>
+                </div>
+
+                <!-- Dynamic Share and Re-test Buttons -->
+                <div class="space-y-2.5 pt-2">
+                    <!-- KakaoTalk Primary Native Share Action -->
+                    <button onclick="shareKakaoTalk()" class="w-full py-3.5 bg-[#FEE500] hover:bg-[#F3DA00] text-[#191919] font-extrabold text-sm rounded-xl transition flex items-center justify-center gap-2 shadow-md shadow-yellow-500/10">
+                        <i class="fa-solid fa-comment text-lg"></i> 카카오톡 결과 공유하기
+                    </button>
+                    
+                    <div class="grid grid-cols-2 gap-3">
+                        <button onclick="resetTest()" class="py-3 px-4 bg-gray-100 hover:bg-gray-200 text-gray-750 font-bold text-sm rounded-xl transition flex items-center justify-center gap-1.5">
+                            <i class="fa-solid fa-arrow-rotate-left"></i> 다시하기
+                        </button>
+                        <!-- Fixed class bg-stone-705 to valid tailwind color bg-stone-700 to restore button visibility -->
+                        <button onclick="copyToClipboard()" class="py-3 px-4 bg-stone-700 hover:bg-stone-800 text-white font-bold text-sm rounded-xl transition flex items-center justify-center gap-1.5 shadow-md shadow-stone-700/10">
+                            <i class="fa-solid fa-share-from-square"></i> 결과 텍스트 복사
+                        </button>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="text-center text-[10px] text-gray-400 mt-6 max-w-md">
+        <p class="font-semibold text-stone-500 mb-1">고등학교 환경 교과 및 창의적 체험활동 보조 학습 프로그램</p>
+        <p>본 평가는 학술 자료 `그림 2. 고등학생이 생태시민으로서 가져야 할 자질 5가지` (image_7e8459.png) 및 `표 6` (image_7e847c.png) 내용을 연구 및 수업 평가용으로 구현하였습니다.</p>
+    </footer>
+
+    <script>
+        // Concise and easily understandable question dataset mapping to academic attributes:
+        const questions = [
+            {
+                id: 1,
+                category: "지식과 이해 (Knowledge & Understanding)",
+                badge: "지식과 이해",
+                text: "나는 우리나라의 대표적인 생태교란종이 무엇인지 알고, 이들이 생태계에 왜 피해를 주는지 그 원인을 잘 알고 있다.",
+                desc: "기후변화 및 생태교란종과 같은 환경 문제에 관심을 가지고, 그것의 원인과 영향 및 특성에 대해 알고 이해하는 능력입니다."
+            },
+            {
+                id: 2,
+                category: "책임 (Responsibility)",
+                badge: "책임",
+                text: "우리 편의를 위해 들여온 외래 생태교란종 문제를 해결하고, 이로 인해 피해를 본 고유종들을 보호할 책임이 우리에게 있다고 생각한다.",
+                desc: "생태계를 공유해 온, 그리고 앞으로 공유하게 될 모든 생물 및 무생물에 대한 책임입니다."
+            },
+            {
+                id: 3,
+                category: "정의 (Justice)",
+                badge: "정의",
+                text: "생태교란종 확산을 막아 생태계의 균형을 복구하는 일은, 미래 세대와 소외된 생명들을 위해 실천해야 할 정의로운 일이라 생각한다.",
+                desc: "모든 시민들 사이의 관계에 바탕을 두고, 생태시민으로서 환경에 대한 책임을 다하는 사회적 정의입니다."
+            },
+            {
+                id: 4,
+                category: "지속가능성 (Sustainability)",
+                badge: "지속가능성",
+                text: "생태교란종 전파를 예방하기 위해, 기르던 동식물을 자연에 함부로 버리거나 방생하지 않는 등 나부터 조심하고 주의를 다한다.",
+                desc: "생태계에 영향을 줄 수 있는 개인의 행동을 조절하며, 지속가능한 환경과 사회를 지향하는 성향입니다."
+            },
+            {
+                id: 5,
+                category: "참여 (Participation)",
+                badge: "참여",
+                text: "우리 동네나 학교에서 진행하는 생태교란종 해결 활동(예: 가시박 제거 봉사활동, 외래종 방생 금지 캠페인 등)에 동참할 생각이 있다.",
+                desc: "환경 문제 해결을 위한 집단적, 사회적 및 정치적인 참여 행동입니다."
+            }
+        ];
+
+        // 5 unique color palettes corresponding to each of the 5 eco-citizen attributes
+        const themes = [
+            {
+                badgeBg: 'bg-lime-50 text-lime-800 border-lime-200',
+                progFrom: 'from-lime-400',
+                progTo: 'to-lime-600',
+                catText: 'text-lime-700',
+                cardBg: 'bg-lime-50/40 border-lime-100'
+            },
+            {
+                badgeBg: 'bg-emerald-50 text-emerald-800 border-emerald-200',
+                progFrom: 'from-emerald-400',
+                progTo: 'to-emerald-600',
+                catText: 'text-emerald-700',
+                cardBg: 'bg-emerald-50/40 border-emerald-100'
+            },
+            {
+                badgeBg: 'bg-stone-100 text-stone-800 border-stone-350',
+                progFrom: 'from-stone-400',
+                progTo: 'to-stone-600',
+                catText: 'text-stone-700',
+                cardBg: 'bg-stone-50/60 border-stone-200/50'
+            },
+            {
+                badgeBg: 'bg-teal-50 text-teal-800 border-teal-200',
+                progFrom: 'from-teal-400',
+                progTo: 'to-teal-600',
+                catText: 'text-teal-700',
+                cardBg: 'bg-teal-50/40 border-teal-100'
+            },
+            {
+                badgeBg: 'bg-sky-50 text-sky-800 border-sky-200',
+                progFrom: 'from-sky-400',
+                progTo: 'to-sky-600',
+                catText: 'text-sky-700',
+                cardBg: 'bg-sky-50/40 border-sky-100'
+            }
+        ];
+
+        // Type assessment categories based on cumulative scores
+        const scoreTypes = [
+            {
+                min: 21,
+                max: 25,
+                title: "지구를 구하는 생태 리더 🦖",
+                desc: "생태교란종에 대한 높은 지식을 가지고 있으며 환경 정의와 남다른 책임감을 균형있게 실천하는 훌륭한 고등학생 리더입니다!"
+            },
+            {
+                min: 16,
+                max: 20,
+                title: "생태 감수성을 지닌 실천가 🌿",
+                desc: "환경 파괴에 대한 경각심을 갖고, 건강한 미래 생태계를 위해 자신의 행동을 바르게 조율하는 우수한 실천가입니다."
+            },
+            {
+                min: 11,
+                max: 15,
+                title: "생각을 시작한 사려 깊은 관찰자 🧐",
+                desc: "생태교란종 문제를 잘 알고 있으며 공감하지만, 더 적극적인 행동과 지역 사회 참여에 조금씩 용기를 보태주면 좋은 상태입니다."
+            },
+            {
+                min: 5,
+                max: 10,
+                title: "이제 막 싹튼 생태 새싹 🌱",
+                desc: "가까운 동네 자연환경과 생물들이 생태교란종으로 겪는 소리 없는 아픔에 조금씩 관심을 모아갈 생태 꼬마시민입니다."
+            }
+        ];
+
+        let currentQuestionIdx = 0;
+        let userScores = [0, 0, 0, 0, 0]; // 1-5 selection array
+        let chartInstance = null; // Chart reference
+
+        // 1. Initial configuration load on startup
+        window.onload = function() {
+            // Load saved Kakao App Key if any
+            const savedKey = localStorage.getItem('kakao_js_key');
+            if (savedKey) {
+                document.getElementById('kakao-app-key').value = savedKey;
+                initializeKakaoSDK(savedKey);
+            }
+            resetTest();
+        };
+
+        function toggleKakaoSettings() {
+            const el = document.getElementById('kakao-settings');
+            el.classList.toggle('hidden');
+        }
+
+        function saveKakaoKey() {
+            const key = document.getElementById('kakao-app-key').value.trim();
+            if (key) {
+                localStorage.setItem('kakao_js_key', key);
+                initializeKakaoSDK(key);
+                showCustomToast("🔑 카카오 API 키가 저장 및 활성화되었습니다!");
+                toggleKakaoSettings();
+            } else {
+                localStorage.removeItem('kakao_js_key');
+                showCustomToast("API 키가 초기화되었습니다.");
+            }
+        }
+
+        function initializeKakaoSDK(key) {
+            try {
+                if (!Kakao.isInitialized()) {
+                    Kakao.init(key);
+                }
+            } catch (e) {
+                console.error("Kakao SDK Init Error: ", e);
+            }
+        }
+
+        // Start Diagnostic Process
+        function startTest() {
+            document.getElementById('start-screen').classList.add('hidden');
+            document.getElementById('quiz-screen').classList.remove('hidden');
+            currentQuestionIdx = 0;
+            userScores = [0, 0, 0, 0, 0];
+            showQuestion();
+        }
+
+        // Render current question layout
+        function showQuestion() {
+            const q = questions[currentQuestionIdx];
+            const theme = themes[currentQuestionIdx];
+
+            // Dynamic Styling for progress bar & content block
+            const badge = document.getElementById('quiz-badge');
+            badge.innerText = q.badge;
+            badge.className = `font-bold text-xs px-3 py-1 rounded-full border transition-all duration-300 ${theme.badgeBg}`;
+
+            const catText = document.getElementById('question-category');
+            catText.innerText = `${currentQuestionIdx + 1}. [${q.category}]`;
+            catText.className = `text-xs font-bold tracking-wider mb-2 transition-all duration-300 ${theme.catText}`;
+
+            const qCard = document.getElementById('question-card');
+            qCard.className = `rounded-2xl p-6 border min-h-[140px] flex flex-col justify-center transition-all duration-300 ${theme.cardBg}`;
+
+            document.getElementById('question-text').innerText = q.text;
+            document.getElementById('quiz-progress-text').innerText = `${currentQuestionIdx + 1} / 5 문항`;
+            
+            // Dynamic colorful progress update
+            const progressBar = document.getElementById('quiz-progress-bar');
+            progressBar.className = `h-full progress-bar-fill bg-gradient-to-r transition-all duration-500 ${theme.progFrom} ${theme.progTo}`;
+            const percentage = ((currentQuestionIdx + 1) / questions.length) * 100;
+            progressBar.style.width = `${percentage}%`;
+
+            // Back button control logic
+            document.getElementById('prev-btn').disabled = (currentQuestionIdx === 0);
+
+            // Redecorate scale option button select-state cleanly
+            highlightSelectionButton();
+        }
+
+        // Apply visual highlights to the active score button with custom active state colors
+        function highlightSelectionButton() {
+            const activeColors = {
+                1: { border: 'border-rose-500', bg: 'bg-rose-500', text: 'text-white' },
+                2: { border: 'border-orange-500', bg: 'bg-orange-500', text: 'text-white' },
+                3: { border: 'border-amber-500', bg: 'bg-amber-500', text: 'text-white' },
+                4: { border: 'border-emerald-600', bg: 'bg-emerald-600', text: 'text-white' },
+                5: { border: 'border-lime-600', bg: 'bg-lime-600', text: 'text-white' }
+            };
+
+            const baseColors = {
+                1: { border: 'border-rose-200', bg: 'bg-white', text: 'text-rose-750' },
+                2: { border: 'border-orange-200', bg: 'bg-white', text: 'text-orange-750' },
+                3: { border: 'border-amber-200', bg: 'bg-white', text: 'text-amber-750' },
+                4: { border: 'border-emerald-200', bg: 'bg-white', text: 'text-emerald-750' },
+                5: { border: 'border-lime-300', bg: 'bg-white', text: 'text-lime-850' }
+            };
+
+            for (let s = 1; s <= 5; s++) {
+                const btn = document.getElementById(`score-btn-${s}`);
+                const numSpan = btn.querySelector('span:first-child');
+                
+                if (userScores[currentQuestionIdx] === s) {
+                    // Apply Active styling
+                    btn.className = `score-btn flex flex-col items-center justify-center py-4 rounded-2xl group transition-all duration-200 scale-[0.98] ${activeColors[s].bg} ${activeColors[s].border} ${activeColors[s].text}`;
+                    numSpan.className = 'text-2xl font-black text-white';
+                } else {
+                    // Restore Base/Default styling
+                    btn.className = `score-btn flex flex-col items-center justify-center py-4 rounded-2xl group transition-all duration-200 ${baseColors[s].bg} ${baseColors[s].border} ${baseColors[s].text}`;
+                    numSpan.className = `text-2xl font-black text-stone-300 transition-colors`;
+                }
+            }
+        }
+
+        // Handle rating choice action
+        function selectScore(score) {
+            userScores[currentQuestionIdx] = score;
+            
+            // Visual bounce effect on selection before sliding
+            highlightSelectionButton();
+            const selectedBtn = document.getElementById(`score-btn-${score}`);
+            selectedBtn.classList.add('scale-95');
+            
+            setTimeout(() => {
+                selectedBtn.classList.remove('scale-95');
+                if (currentQuestionIdx < questions.length - 1) {
+                    currentQuestionIdx++;
+                    showQuestion();
+                } else {
+                    showResults();
+                }
+            }, 200);
+        }
+
+        // Navigate backwards
+        function prevQuestion() {
+            if (currentQuestionIdx > 0) {
+                currentQuestionIdx--;
+                showQuestion();
+            }
+        }
+
+        // Render final breakdown metrics & radar configuration
+        function showResults() {
+            document.getElementById('quiz-screen').classList.add('hidden');
+            document.getElementById('result-screen').classList.remove('hidden');
+
+            const totalScore = userScores.reduce((acc, curr) => acc + curr, 0);
+            document.getElementById('total-score').innerText = totalScore;
+
+            // Fetch aligned character profile
+            let userType = scoreTypes[3];
+            for (let type of scoreTypes) {
+                if (totalScore >= type.min && totalScore <= type.max) {
+                    userType = type;
+                    break;
+                }
+            }
+
+            document.getElementById('result-title').innerText = userType.title;
+            document.getElementById('result-range').innerText = `총합 ${totalScore}점 - ${userType.desc}`;
+
+            // Create breakdown status list
+            const breakdownContainer = document.getElementById('breakdown-list');
+            breakdownContainer.innerHTML = '';
+            
+            questions.forEach((q, idx) => {
+                const score = userScores[idx];
+                const percentage = (score / 5) * 100;
+                
+                // Set custom color codes based on scoring depth
+                let barColor = "bg-lime-500";
+                if (score <= 2) barColor = "bg-rose-400";
+                else if (score === 3) barColor = "bg-amber-400";
+                else if (score === 4) barColor = "bg-emerald-500";
+
+                const detailItemHtml = `
+                    <div class="bg-stone-50/55 border border-stone-100 p-3.5 rounded-xl">
+                        <div class="flex justify-between items-center text-xs font-bold text-gray-700 mb-1">
+                            <span><i class="fa-solid fa-circle-check text-stone-500 mr-1.5"></i>${q.badge}</span>
+                            <span class="text-stone-700 bg-stone-100 px-2.5 py-0.5 rounded-md">${score} / 5점</span>
+                        </div>
+                        <div class="w-full bg-stone-200/60 rounded-full h-2 overflow-hidden">
+                            <div class="${barColor} h-full progress-bar-fill" style="width: ${percentage}%"></div>
+                        </div>
+                        <p class="text-[10px] text-gray-500 leading-normal mt-1.5 font-medium">${q.desc}</p>
+                    </div>
+                `;
+                breakdownContainer.insertAdjacentHTML('beforeend', detailItemHtml);
+            });
+
+            renderRadarChart();
+        }
+
+        function renderRadarChart() {
+            const ctx = document.getElementById('ecoChart').getContext('2d');
+            
+            if (chartInstance) {
+                chartInstance.destroy();
+            }
+
+            const data = {
+                labels: ['지식과 이해', '책임', '정의', '지속가능성', '참여'],
+                datasets: [{
+                    label: '획득 점수 (Score)',
+                    data: userScores,
+                    fill: true,
+                    backgroundColor: 'rgba(101, 163, 13, 0.15)', // Soft Muted Green Accent
+                    borderColor: 'rgba(101, 163, 13, 0.85)',
+                    pointBackgroundColor: 'rgba(77, 124, 15, 1)',
+                    pointBorderColor: '#fff',
+                    pointHoverBackgroundColor: '#fff',
+                    pointHoverBorderColor: 'rgba(77, 124, 15, 1)',
+                    borderWidth: 2.5
+                }]
+            };
+
+            const config = {
+                type: 'radar',
+                data: data,
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        r: {
+                            angleLines: {
+                                color: 'rgba(215, 220, 215, 1)'
+                            },
+                            grid: {
+                                color: 'rgba(225, 230, 225, 1)'
+                            },
+                            pointLabels: {
+                                font: {
+                                    size: 10,
+                                    weight: 'bold',
+                                    family: 'Noto Sans KR'
+                                },
+                                color: '#4b5563'
+                            },
+                            suggestedMin: 0,
+                            suggestedMax: 5,
+                            ticks: {
+                                stepSize: 1,
+                                showLabelBackdrop: false,
+                                color: '#a3a3a3',
+                                font: {
+                                    size: 8
+                                }
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    }
+                }
+            };
+
+            chartInstance = new Chart(ctx, config);
+        }
+
+        // Formulate share string context with active test-link connection
+        function generateShareText(totalScore, userType) {
+            return `[고등학생 생태시민성 자가진단 - 생태교란종 편]\n🌱 나의 생태시민 종합 점수: ${totalScore}점 / 25점\n🌿 분석 유형: ${userType.title}\n\n[상세 영역 점수]\n- 지식과 이해: ${userScores[0]}점\n- 책임: ${userScores[1]}점\n- 정의: ${userScores[2]}점\n- 지속가능성: ${userScores[3]}점\n- 참여: ${userScores[4]}점\n\n지구의 소중한 생명들과 조화롭게 살아가는 법을 배우는 중입니다! 여러분도 테스트해 보세요!\n\n👇 나도 생태시민성 테스트 하러가기:\n${window.location.href}`;
+        }
+
+        // Primary Action: Share via KakaoTalk (Hybrid API + Intent flow)
+        function shareKakaoTalk() {
+            const totalScore = userScores.reduce((acc, curr) => acc + curr, 0);
+            let userType = scoreTypes[3];
+            for (let type of scoreTypes) {
+                if (totalScore >= type.min && totalScore <= type.max) {
+                    userType = type;
+                    break;
+                }
+            }
+
+            const sharedText = generateShareText(totalScore, userType);
+
+            // 1. If Kakao SDK key is registered and initialized
+            if (typeof Kakao !== 'undefined' && Kakao.isInitialized()) {
+                Kakao.Link.sendDefault({
+                    objectType: 'feed',
+                    content: {
+                        title: '🌿 생태시민성 자가진단 결과',
+                        description: `종합 결과: ${userType.title} (${totalScore}점)`,
+                        imageUrl: 'https://placehold.co/600x400/e2e8f0/65a30d?text=Eco+Citizen+Test',
+                        link: {
+                            mobileWebUrl: window.location.href,
+                            webUrl: window.location.href,
+                        },
+                    },
+                    buttons: [
+                        {
+                            title: '나도 진단해보기',
+                            link: {
+                                mobileWebUrl: window.location.href,
+                                webUrl: window.location.href,
+                            },
+                        },
+                    ],
+                });
+                showCustomToast("💬 카카오톡 공유가 성공적으로 완료되었습니다!");
+                return;
+            }
+
+            // 2. Fallback Mechanism: Copy formatted text with URL automatically & trigger KakaoTalk launch intent
+            const success = performCopy(sharedText);
+            if (success) {
+                showCustomToast("📋 결과와 접속 링크가 함께 복사되었습니다! 대화방에 바로 붙여넣기(Ctrl+V) 하세요!");
+                setTimeout(() => {
+                    // Attempt to open KakaoTalk via Custom URL scheme
+                    window.location.href = "kakaotalk://";
+                }, 1200);
+            } else {
+                showCustomToast("텍스트 복사에 실패했습니다. 브라우저 설정을 확인해 주세요.");
+            }
+        }
+
+        // Action: General Clipboard Copy Utility
+        function copyToClipboard() {
+            const totalScore = userScores.reduce((acc, curr) => acc + curr, 0);
+            let userType = scoreTypes[3];
+            for (let type of scoreTypes) {
+                if (totalScore >= type.min && totalScore <= type.max) {
+                    userType = type;
+                    break;
+                }
+            }
+
+            const rawText = generateShareText(totalScore, userType);
+            if (performCopy(rawText)) {
+                showCustomToast("📋 진단 결과 텍스트가 클립보드에 복사되었습니다!");
+            }
+        }
+
+        // Standard clipboard compatibility executor
+        function performCopy(text) {
+            const textArea = document.createElement("textarea");
+            textArea.value = text;
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            let successful = false;
+            try {
+                successful = document.execCommand('copy');
+            } catch (err) {
+                console.error("Copy operation error: ", err);
+            }
+            document.body.removeChild(textArea);
+            return successful;
+        }
+
+        // Custom Safe Toast notification
+        function showCustomToast(message) {
+            let toast = document.getElementById('custom-toast');
+            if (!toast) {
+                toast = document.createElement('div');
+                toast.id = 'custom-toast';
+                toast.className = 'fixed bottom-10 left-1/2 -translate-x-1/2 bg-stone-800/90 text-white text-xs px-4 py-3 rounded-xl shadow-xl z-50 transition-opacity duration-300 pointer-events-none text-center max-w-[90%] font-semibold leading-relaxed';
+                document.body.appendChild(toast);
+            }
+            toast.innerText = message;
+            toast.style.opacity = '1';
+            
+            setTimeout(() => {
+                toast.style.opacity = '0';
+            }, 3500);
+        }
+
+        // Restore initialization workflow
+        function resetTest() {
+            document.getElementById('result-screen').classList.add('hidden');
+            document.getElementById('quiz-screen').classList.add('hidden');
+            document.getElementById('start-screen').classList.remove('hidden');
+            currentQuestionIdx = 0;
+            userScores = [0, 0, 0, 0, 0];
+        }
+    </script>
+</body>
+</html>
